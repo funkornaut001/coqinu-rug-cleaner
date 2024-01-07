@@ -2,8 +2,8 @@
 pragma solidity 0.8.20;
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
-import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import {Pausable} from "@openzeppelin/contracts/security/Pausable.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 import {IERC1155} from "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
@@ -63,6 +63,7 @@ contract CoqInuRugCleaner is Ownable, Pausable, ReentrancyGuard {
     error Denied();
     error UserNeedsMoreCoqInThem();
     error SameOwner(address);
+    error OwnableInvalidOwner(address);
 
     ///////////////////////
     /// State Variables ///
@@ -105,7 +106,7 @@ contract CoqInuRugCleaner is Ownable, Pausable, ReentrancyGuard {
     event ERC721Withdrawn(address indexed user, address indexed token, uint256 tokenId);
     event ERC1155Withdrawn(address indexed user, address indexed token, uint256 tokenId, uint256 amount);
 
-    constructor(address _roosterWallet) Ownable(msg.sender) {
+    constructor(address _roosterWallet) {
         if (_roosterWallet == address(0)){
             revert NoZeroAddress();
         }
