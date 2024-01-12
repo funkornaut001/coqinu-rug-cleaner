@@ -10,6 +10,8 @@ import "@matterlabs/hardhat-zksync-verify";
 // If not set, it uses ours Alchemy's default API key.
 // You can get your own at https://dashboard.alchemyapi.io
 const providerApiKey = process.env.ALCHEMY_API_KEY || "oKxs-03sij-U_N0iOlrSsZFr29-IqbuF";
+//for avax
+const infruaApiKey = process.env.INFRUA_API_KEY;
 // If not set, it uses the hardhat account 0 private key.
 const deployerPrivateKey =
   process.env.DEPLOYER_PRIVATE_KEY ?? "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
@@ -18,7 +20,7 @@ const etherscanApiKey = process.env.ETHERSCAN_API_KEY || "DNXJA8RX2Q3VZ4URQIWP7Z
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: "0.8.17",
+    version: "0.8.20",
     settings: {
       optimizer: {
         enabled: true,
@@ -130,6 +132,19 @@ const config: HardhatUserConfig = {
     pgnTestnet: {
       url: "https://sepolia.publicgoods.network",
       accounts: [deployerPrivateKey],
+    },
+    avalanche: {
+      url: `https://avalanche-mainnet.infura.io/v3/${infruaApiKey}`,
+      accounts: [deployerPrivateKey],
+    },
+    avalancheFuji: {
+      url: `https://avalanche-fuji.infura.io/v3/${infruaApiKey}`,
+      accounts: [deployerPrivateKey],
+    },
+  },
+  etherscan: {
+    apiKey: {
+      avalancheFujiTestnet: `${etherscanApiKey}`,
     },
   },
   verify: {

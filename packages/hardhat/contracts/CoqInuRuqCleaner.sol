@@ -69,13 +69,13 @@ contract CoqInuRugCleaner is Ownable, Pausable, ReentrancyGuard {
     /// State Variables ///
     ///////////////////////
 
-    address public immutable i_coq = 0x420FcA0121DC28039145009570975747295f2329; // Coq Token
+    address public immutable i_coq; //0x420FcA0121DC28039145009570975747295f2329; // Coq Token
 
     /// @notice The amount of COQ that the contract will pay to the user for each NFT or ERC20 token received
-    uint256 public tokenPaymentAmount = 1000000000000000000000000; // 1,000,000 coq
+    uint256 public tokenPaymentAmount = 1000000000000000000000000 wei; // 1,000,000 coq
     
     /// @notice The amount of AVAX that the contract will charge the user for each NFT or ERC20 token sent to it
-    uint256 public serviceFee = 2000000000000000000000000; // 2,000,000 coq
+    uint256 public serviceFee = 2000000000000000000000000 wei; // 2,000,000 coq
 
     /// @notice The address that will receive the service fee
     address public roosterWallet; 
@@ -106,12 +106,13 @@ contract CoqInuRugCleaner is Ownable, Pausable, ReentrancyGuard {
     event ERC721Withdrawn(address indexed user, address indexed token, uint256 tokenId);
     event ERC1155Withdrawn(address indexed user, address indexed token, uint256 tokenId, uint256 amount);
 
-    constructor(address _roosterWallet) {
-        if (_roosterWallet == address(0)){
+    constructor(address _roosterWallet, address _coq) {
+        if (_roosterWallet == address(0) || _coq == address(0)){
             revert NoZeroAddress();
         }
 
         roosterWallet = _roosterWallet;
+        i_coq = _coq;
     }
 
     // Function to receive Avax. msg.data must be empty

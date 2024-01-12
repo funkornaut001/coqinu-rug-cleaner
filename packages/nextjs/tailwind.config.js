@@ -7,6 +7,17 @@ module.exports = {
   daisyui: {
     themes: [
       {
+        coqinu: {
+          primary: "#D65752", // CoqInu brand red color
+          "primary-content": "#ffffff", // white text for red backgrounds
+          secondary: "#F7E18B", // CoqInu brand yellow-ish color
+          "secondary-content": "#000000", // black text for yellow-ish backgrounds
+          neutral: "#ffffff", // typically the backgrounds are white
+          "neutral-content": "#000000", // text on neutral backgrounds is black
+          "base-100": "#ffffff", // white background base
+          "base-content": "#000000", // black base text color
+          // ... other colors as needed ...
+        },
         scaffoldEth: {
           primary: "#93BBFB",
           "primary-content": "#212638",
