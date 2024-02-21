@@ -36,6 +36,14 @@ const deployMocksAndCoqInuRugCleaner: DeployFunction = async function (hre: Hard
     log: true,
   });
   console.log(`CoqInuRugCleaner deployed to: ${coqInuRugCleanerDeployment.address}`);
+
+  // Deploy Harvester Contract
+  const harvesterDeployment = await deploy("Harvester", {
+    from: deployer,
+    args: ["0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"],
+    log: true,
+  });
+  console.log(`Harvester deployed to: ${harvesterDeployment.address}`);
 };
 
 export default deployMocksAndCoqInuRugCleaner;

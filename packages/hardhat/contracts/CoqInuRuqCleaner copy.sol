@@ -372,9 +372,9 @@ contract CoqInuRugCleaner is Ownable, Pausable, ReentrancyGuard {
     }
 
 
-    ////////////////////////////
-    /// Edit State Variables ///
-    ////////////////////////////
+    ///////////////////////
+    /// Admin Functions ///
+    ///////////////////////
 
     function changeroosterWallet(address _newroosterWallet) external onlyOwner {
         if (_newroosterWallet == address(0)){
@@ -411,9 +411,6 @@ contract CoqInuRugCleaner is Ownable, Pausable, ReentrancyGuard {
     }
 
 
-    ///////////////////////
-    /// Admin Functions ///
-    ///////////////////////
     function transferOwnership(address newOwner) public override onlyOwner {
         if (newOwner == address(0)) {
             revert OwnableInvalidOwner(address(0));
@@ -461,7 +458,7 @@ contract CoqInuRugCleaner is Ownable, Pausable, ReentrancyGuard {
         return address(this).balance;
     }
 
-    function getroosterWalletAddress() public view returns (address) {
+    function getRoosterWalletAddress() public view returns (address) {
         return roosterWallet;
     }
 

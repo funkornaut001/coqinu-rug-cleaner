@@ -10,7 +10,7 @@ const HarvestERC721 = () => {
 
   //const tokenIdBigInt = BigInt(tokenId);
 
-  const { data: deployedContract } = useDeployedContractInfo("CoqInuRugCleaner");
+  const { data: deployedContract } = useDeployedContractInfo("Harvester");
 
   // Set up your contract write interaction
   const { write, isLoading, isSuccess, isError } = useContractWrite({
@@ -18,6 +18,7 @@ const HarvestERC721 = () => {
     abi: deployedContract?.abi,
     functionName: "harvestERC721",
     args: [tokenAddress, BigInt(tokenId)],
+    value: BigInt(6900000000000000),
     // Add overrides if you need to send value or set gas limit
   });
 
