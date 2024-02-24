@@ -50,7 +50,7 @@ contract Harvester is Ownable, Pausable, ReentrancyGuard {
     uint256 public tokenPaymentAmount = 0.00042069 ether; // about $1 when ETH id ~$2,100 
     
     /// @notice The amount of ETH that the contract will charge the user for each NFT or ERC20 token sent to it
-    uint256 public serviceFee = 0.0069 ether;
+    uint256 public serviceFee = 0.00069 ether;
 
     /// @notice The address that will receive the service fee
     address public companyWallet; 

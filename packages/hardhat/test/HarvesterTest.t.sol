@@ -22,10 +22,10 @@ contract HarvesterTest is Test {
     // uint256 public serviceFee = 0.045 ether; //0.045 ether ~ $100 as of 2023 - 12 - 15
     // uint256 public tokenPaymentAmount = 7000 gwei; // ~ $0.01 as of 2022-10-19
     
-    uint256 public tokenPaymentAmount = 0.0004269 ether; // about $1 when ETH id ~$2,100 
+    uint256 public tokenPaymentAmount = 0.00042069 ether; // about $1 when ETH id ~$2,100 
     
     /// @notice The amount of ETH that the contract will charge the user for each NFT or ERC20 token sent to it
-    uint256 public serviceFee = 0.0069 ether;
+    uint256 public serviceFee = 0.00069 ether;
     ///@notice the minimum amount of eth that needs to be sent for a loss harvest in wei
     uint256 public minEthToHarvest = 0.0005 ether;
 
@@ -88,7 +88,6 @@ contract HarvesterTest is Test {
 
         return (tokens, ids);
     }
-//function mint(address to, uint256 id, uint256 amount, bytes memory data) public virtual
 
     function mintMultiERC1155() public returns (address[] memory, uint256[] memory, uint256[] memory) {
         uint256 tokenCount = 5;
@@ -117,13 +116,12 @@ contract HarvesterTest is Test {
         assertEq(harvester.companyWallet(), companyWallet);
         assertEq(harvester.serviceFee(), serviceFee);
         assertEq(harvester.minEthToHarvest(), minEthToHarvest);
-        assertEq(address(harvester).balance, tokenPaymentAmount);
+        assertEq(address(harvester).balance, dealtAmount);
 
         assertEq(mockERC20.balanceOf(userWallet), 1000);
         assertEq(mockERC721.balanceOf(userWallet), 5);
-        assertEq(mockERC1155.balanceOf(userWallet, 1), 5);
-        assertEq(mockERC1155.balanceOf(userWallet, 2), 5);
-        assertEq(mockERC1155.balanceOf(userWallet, 3), 5);
+        assertEq(mockERC1155.balanceOf(userWallet, 0), 5);
+        
     }
 
     /////////////////////////////////////
@@ -139,7 +137,7 @@ contract HarvesterTest is Test {
         payable(harvester).transfer(1 ether);
 
         assertEq(address(sender).balance, 0 ether);
-        assertEq(address(harvester).balance, 1 ether + tokenPaymentAmount);
+        assertEq(address(harvester).balance, 1 ether + dealtAmount);
     }   
 
     function test_canRecieveERC20() public {
@@ -175,15 +173,11 @@ contract HarvesterTest is Test {
     function test_harvestEth() public {
         vm.startPrank(userWallet);
     
-        uint256 amountToHarvest = 0.5 ether + serviceFee; // 0.545 ether 
+        uint256 amountToHarvest = 0.5 ether + serviceFee; // 0.5069 ether 
         harvester.harvestEth{value: amountToHarvest}();
-        // console2.log("userWallet balance: ", address(userWallet).balance);
-        // console2.log("harvester balance: ", address(harvester).balance);
-        // console2.log("companyWallet balance: ", address(companyWallet).balance);
-        // console2.log("serviceFee: ", serviceFee);
 
         assertEq(companyWallet.balance, serviceFee);
-        assertEq(address(harvester).balance, (0.5 ether));
+        assertEq(address(harvester).balance, (0.5 ether) + (dealtAmount - tokenPaymentAmount));
         assertEq(userWallet.balance, ((1 ether - amountToHarvest) + tokenPaymentAmount)); 
     }
 
@@ -196,7 +190,7 @@ contract HarvesterTest is Test {
         assertEq(mockERC20.balanceOf(address(harvester)), 500);
         // ether balances 
         assertEq(companyWallet.balance, serviceFee);
-        assertEq(address(harvester).balance, 0);
+        assertEq(address(harvester).balance, (dealtAmount - tokenPaymentAmount));
         console2.log("userWallet balance: ", address(userWallet).balance);
         assertEq(userWallet.balance, (1 ether - serviceFee + tokenPaymentAmount));
     }
@@ -210,7 +204,7 @@ contract HarvesterTest is Test {
         assertEq(mockERC721.balanceOf(address(harvester)), 1);
         // ether balances 
         assertEq(companyWallet.balance, serviceFee);
-        assertEq(address(harvester).balance, 0);
+        assertEq(address(harvester).balance, (dealtAmount - tokenPaymentAmount));
         assertEq(userWallet.balance, (1 ether - serviceFee + tokenPaymentAmount));
     }
 
@@ -232,6 +226,34 @@ contract HarvesterTest is Test {
     //////////////////////////
     /// Test Multi Harvest ///
     //////////////////////////
+    function test_fzHarvestMultipleERC20(uint256[] calldata _amounts) public {
+        vm.assume(_amounts.length >  0);
+
+        address[] memory tokens = new address[](_amounts.length);
+
+        for(uint i; i < _amounts.length; ++i){
+            vm.deal(address(harvester), 1 ether);
+            vm.deal(userWallet, 1 ether);
+
+            MockERC20 token = new MockERC20("", "");
+            tokens[i] = address(token);
+            vm.assume(_amounts[i] >  0 && _amounts[i] < type(uint256).max);
+            token.mint(userWallet, _amounts[i]);
+
+            vm.prank(userWallet);
+            token.approve(address(harvester), _amounts[i]);
+
+        }
+        
+
+        uint256 totalServiceFee = serviceFee * _amounts.length;
+
+        vm.prank(userWallet);
+        harvester.harvestMultipleERC20{value: totalServiceFee}(tokens, _amounts);
+
+        assertEq(companyWallet.balance, totalServiceFee);
+
+    }
 
     function test_harvestMultipleERC20() public {
         vm.deal(address(harvester), 1 ether);
@@ -355,10 +377,10 @@ contract HarvesterTest is Test {
         test_harvestERC1155();
         vm.stopPrank();
 
-        harvester.withdrawERC1155(address(companyWallet), address(mockERC1155), 1, 1);
+        harvester.withdrawERC1155(address(companyWallet), address(mockERC1155), 0, 1);
 
-        assertEq(mockERC1155.balanceOf(address(harvester), 1), 0);
-        assertEq(mockERC1155.balanceOf(address(companyWallet), 1), 1);
+        assertEq(mockERC1155.balanceOf(address(harvester), 0), 0);
+        assertEq(mockERC1155.balanceOf(address(companyWallet), 0), 1);
     }
 
     ////////////////////////
