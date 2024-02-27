@@ -311,6 +311,36 @@ contract HarvesterTest is Test {
         assertEq(userWallet.balance, (1 ether - totalServiceFee + totalTokenPaymentAmount));
     }
 
+    function test_fzHarvestMultipleERC721(uint256[] calldata _tokenIds) public {
+        vm.assume(_tokenIds.length >  0);
+
+        address[] memory tokenAddresses = new address[](_tokenIds.length);
+
+        for(uint i; i < _tokenIds.length; ++i){
+            vm.deal(address(harvester), 1 ether);
+            vm.deal(userWallet, 1 ether);
+
+            MockERC721 token = new MockERC721("", "");
+            tokenAddresses[i] = address(token);
+            vm.assume(_tokenIds[i] >  0 && _tokenIds[i] < type(uint256).max);
+            token.safeMint(userWallet);
+
+            vm.prank(userWallet);
+            token.approve(address(harvester), _tokenIds[i]);
+
+        }
+        
+
+        uint256 totalServiceFee = serviceFee * _tokenIds.length;
+
+        vm.prank(userWallet);
+        harvester.harvestMultipleERC721{value: totalServiceFee}(tokenAddresses, _tokenIds);
+
+        assertEq(companyWallet.balance, totalServiceFee);
+
+    }
+
+
     function test_harvestMultipleERC1155() public {
         vm.deal(address(harvester), 1 ether);
         (address[] memory tokens, uint256[] memory ids, uint256[] memory amounts) = mintMultiERC1155();
