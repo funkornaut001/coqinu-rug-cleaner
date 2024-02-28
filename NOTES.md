@@ -20,3 +20,46 @@ CoqInuRugCleaner deployed to: 0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9
 ## 1/11
 deployed to fuji at 0x4A07d41680A1f43D49695dC14790D120D6b783B5
 https://testnet.snowtrace.io/tx/0x85f45ef942f6fec93d8979f92ce4b95ebef8d9b49f66459ea96e6475c52f4969?chainId=43113
+
+## 2/27
+harpie intergratin:
+
+```
+async function validateAddressWithHarpie(address) {
+  const apiKey = 'YOUR_API_KEY'; // Replace with your actual API key
+  const response = await fetch("https://api.harpie.io/v2/validateAddress", {
+    method: "POST",
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      apiKey: apiKey,
+      address: address
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to validate address');
+  }
+
+  const data = await response.json();
+
+  if (data.isMaliciousAddress) {
+    console.warn(data.summary); // Or handle malicious address more strictly
+    // Implement your logic here to block the address or alert the user
+    return false; // Indicating the address should be blocked
+  } else {
+    // Address is considered safe
+    return true; // Indicating the address is allowed
+  }
+}
+```
+
+## 2/28
+
+wrestled with getiing the api working correctly. 
+Set up api endpoint in pages/api/validateAddress  - this is on the server side and is how we actually communicate to the api and make requests.
+In compoents/scaffol-eth/rainbowkitconnectwalletbutton I put the logic for validateAddress. Once a user connects a wallet it will send the api request with that wallet and if the wallet is blocked it will redirect the user to the pages/blockedPage.
+
+ToDo: API calls 4 times - see if there is a way to get it to 1. Then if a wallet is blocked you should black list it? Or log it out. Or never allow the user to visit a page where they could interact with the contract.

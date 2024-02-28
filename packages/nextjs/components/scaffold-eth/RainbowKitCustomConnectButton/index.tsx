@@ -1,3 +1,6 @@
+// added imports for handling address validation
+//@todo uncomment
+//import { useRouter } from "next/router";
 import { Balance } from "../Balance";
 import { AddressInfoDropdown } from "./AddressInfoDropdown";
 import { AddressQRCodeModal } from "./AddressQRCodeModal";
@@ -8,6 +11,8 @@ import { useAutoConnect, useNetworkColor } from "~~/hooks/scaffold-eth";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
 import { getBlockExplorerAddressLink } from "~~/utils/scaffold-eth";
 
+//import { validateAddress } from "~~/pages/api/validateAddress";
+
 /**
  * Custom Wagmi Connect Button (watch balance + custom design)
  */
@@ -15,6 +20,42 @@ export const RainbowKitCustomConnectButton = () => {
   useAutoConnect();
   const networkColor = useNetworkColor();
   const { targetNetwork } = useTargetNetwork();
+
+  // route to blocked page
+  // const router = useRouter();
+
+  // // Function to validate the address by calling your Next.js API route
+  // async function validateAddressBeforeConnect(address: string) {
+  //   console.log("sending validate api request ", address);
+  //   const response = await fetch("/api/validateAddress", {
+  //     method: "POST",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //     },
+  //     body: JSON.stringify({ address }), // Sending the address to your API route
+  //   });
+
+  //   if (!response.ok) {
+  //     throw new Error("Failed to validate address with the API");
+  //   }
+
+  //   const data = await response.json(); // The response from your API route
+  //   console.log("response: ", data);
+
+  //   // Check the tags for specific conditions
+  //   const isBlocked =
+  //     data.isMaliciousAddress || data.tags.THEFT || data.tags.CYBERCRIME || data.tags.SANCTIONED || data.tags.BOT;
+
+  //   //return !isBlocked;
+  //   if (!isBlocked) {
+  //     console.log("not blocked 1");
+  //     return true;
+  //   } else {
+  //     console.log("blocked 2");
+  //     router.push("/blocked"); // Redirect to the blocked page if the address is flagged
+  //     return false;
+  //   } // Return true if the address is safe, false otherwise
+  // }
 
   return (
     <ConnectButton.Custom>
@@ -38,6 +79,11 @@ export const RainbowKitCustomConnectButton = () => {
               if (chain.unsupported || chain.id !== targetNetwork.id) {
                 return <WrongNetworkDropdown />;
               }
+              //@todo uncomment
+              // if (connected) {
+              //   // As soon as the wallet is connected, validate the address
+              //   validateAddressBeforeConnect(account.address);
+              // }
 
               return (
                 <>
