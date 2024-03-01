@@ -59,7 +59,7 @@ export const RainbowKitCustomConnectButton = () => {
 
   return (
     <ConnectButton.Custom>
-      {({ account, chain, openConnectModal, mounted }) => {
+      {({ account, chain, openConnectModal,  mounted }) => {
         const connected = mounted && account && chain;
         const blockExplorerAddressLink = account
           ? getBlockExplorerAddressLink(targetNetwork, account.address)
@@ -79,10 +79,10 @@ export const RainbowKitCustomConnectButton = () => {
               if (chain.unsupported || chain.id !== targetNetwork.id) {
                 return <WrongNetworkDropdown />;
               }
-              //@todo uncomment
+              //@todo uncomment - test await for harpie api call - could use when you click button to harvest tokens so it only runs then.
               // if (connected) {
               //   // As soon as the wallet is connected, validate the address
-              //   validateAddressBeforeConnect(account.address);
+              //   await validateAddressBeforeConnect(account.address);
               // }
 
               return (

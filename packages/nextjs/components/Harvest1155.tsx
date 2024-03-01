@@ -4,34 +4,30 @@ import { useDeployedContractInfo } from "~~/hooks/scaffold-eth";
 
 // eslint-disable-line import/no-unresolved
 
-const HarvestERC721 = () => {
+const HarvestERC1155 = () => {
   const [tokenAddress, setTokenAddress] = useState("");
   const [tokenId, setTokenId] = useState("");
+  const [amount, setAmount] = useState("");
   const [isApproved, setIsApproved] = useState(false);
 
-  //const tokenIdBigInt = BigInt(tokenId);
 
   const { data: harvester } = useDeployedContractInfo("Harvester");
-  const { data: mock721 } = useDeployedContractInfo("MockERC721");
+  const { data: mock1155 } = useDeployedContractInfo("MockERC1155");
 
-  // approvals
-  const tokenApprovalArgs = {
-    address: tokenAddress, // The ERC-721 token contract address
-    abi: mock721?.abi,
-    functionName: "approve",
-    args: [harvester?.address, BigInt(tokenId)],
-  };
-
-  // Use `useContractWrite` for token approval
   const {
     write: approveWrite,
     isLoading: isApproveLoading,
     isSuccess: isApproveSuccess,
     isError: isApproveError,
-  } = useContractWrite(tokenApprovalArgs);
+  } = useContractWrite({
+    address: tokenAddress, // The ERC-1155 token contract address
+    abi: mock1155?.abi,
+    functionName: "setApprovalForAll",
+    args: [harvester?.address, true],
+  });
 
   // Set up your contract write interaction
-  const {
+   const {
     write: harvestWrite,
     isLoading: isHarvestLoading,
     isSuccess: isHarvestSuccess,
@@ -39,8 +35,8 @@ const HarvestERC721 = () => {
   } = useContractWrite({
     address: harvester?.address,
     abi: harvester?.abi,
-    functionName: "harvestERC721",
-    args: [tokenAddress, BigInt(tokenId)],
+    functionName: "harvestERC1155",
+    args: [tokenAddress, BigInt(tokenId), BigInt(amount)],
     value: BigInt(690000000000000),
     // Add overrides if you need to send value or set gas limit
   });
@@ -71,10 +67,9 @@ const HarvestERC721 = () => {
   const isLoading = isApproveLoading || isHarvestLoading;
   const isSuccess = isApproveSuccess && isHarvestSuccess;
   const isError = isApproveError || isHarvestError;
-
   return (
     <div className="p-4 shadow-lg rounded-lg bg-base-100 max-w-md mx-auto">
-      <h1 className="text-xl font-bold mb-4 text-primary">Harvest ERC-721 Token</h1>
+      <h1 className="text-xl font-bold mb-4 text-primary">Harvest ERC-1155 Tokens</h1>
       <div className="mb-4">
         <input
           type="text"
@@ -93,6 +88,15 @@ const HarvestERC721 = () => {
           className="input input-bordered w-full"
         />
       </div>
+      <div className="mb-4">
+        <input
+          type="text"
+          value={amount}
+          onChange={e => setAmount(e.target.value)}
+          placeholder="Amount to harvest"
+          className="input input-bordered w-full"
+        />
+      </div>
       {!isApproved ? (
         <button
           onClick={handleApprove}
@@ -107,7 +111,7 @@ const HarvestERC721 = () => {
           disabled={isLoading}
           className={`btn btn-primary w-full ${isLoading ? "loading" : ""}`}
         >
-          Harvest ERC-721 Tokens
+          Harvest ERC-1155 Tokens
         </button>
       )}
       {isSuccess && <p className="mt-2 text-success">Token harvested successfully!</p>}
@@ -115,4 +119,4 @@ const HarvestERC721 = () => {
     </div>
   );
 };
-export default HarvestERC721;
+export default HarvestERC1155;

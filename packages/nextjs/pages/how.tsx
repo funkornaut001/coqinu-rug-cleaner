@@ -1,4 +1,5 @@
 /* eslint-disable react/no-unescaped-entities */
+//@todo make better
 import type { NextPage } from "next";
 
 const How: NextPage = () => {

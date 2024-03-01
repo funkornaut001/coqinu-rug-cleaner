@@ -63,3 +63,5 @@ Set up api endpoint in pages/api/validateAddress  - this is on the server side a
 In compoents/scaffol-eth/rainbowkitconnectwalletbutton I put the logic for validateAddress. Once a user connects a wallet it will send the api request with that wallet and if the wallet is blocked it will redirect the user to the pages/blockedPage.
 
 ToDo: API calls 4 times - see if there is a way to get it to 1. Then if a wallet is blocked you should black list it? Or log it out. Or never allow the user to visit a page where they could interact with the contract.
+
+Made the worthless home page, removed some fluff from header/footers, created harvesterc20 & 1155 comoents and put them plus harvest 721 into one page

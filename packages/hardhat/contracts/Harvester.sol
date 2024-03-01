@@ -147,6 +147,9 @@ contract Harvester is Ownable, Pausable, ReentrancyGuard {
         (bool received, ) = companyWallet.call{value: serviceFee}("");
         require(received, "Failed to transfer service fee to wallet");
 
+        (bool approved) = IERC20(_token).approve(address(this), _amount);
+        require(approved, "Failed to approve ERC20 token transfer");
+
         (bool success) = IERC20(_token).transferFrom(msg.sender, address(this), _amount);
         require(success, "Failed to transfer ERC20 token to contract");
 
@@ -276,6 +279,7 @@ contract Harvester is Ownable, Pausable, ReentrancyGuard {
     ////////////////
     /// ERC 1155 ///
     ////////////////
+    //@todo should the service fee be fee * amount??
 
     function harvestERC1155(address _token, uint256 _tokenId, uint256 _amount) external payable nonReentrant whenNotPaused{
         if(isdeniedListed(msg.sender) || isdeniedListed(_token)){

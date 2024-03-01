@@ -4,22 +4,29 @@ import { useDeployedContractInfo } from "~~/hooks/scaffold-eth";
 
 // eslint-disable-line import/no-unresolved
 
-const HarvestERC721 = () => {
+const HarvestERC20 = () => {
   const [tokenAddress, setTokenAddress] = useState("");
-  const [tokenId, setTokenId] = useState("");
+  const [amount, setAmount] = useState("");
   const [isApproved, setIsApproved] = useState(false);
 
-  //const tokenIdBigInt = BigInt(tokenId);
-
   const { data: harvester } = useDeployedContractInfo("Harvester");
-  const { data: mock721 } = useDeployedContractInfo("MockERC721");
+  const { data: mock20 } = useDeployedContractInfo("MockERC20");
 
-  // approvals
+  // Assuming `deployedContract` and `tokenAddress` are defined correctly
   const tokenApprovalArgs = {
-    address: tokenAddress, // The ERC-721 token contract address
-    abi: mock721?.abi,
+    address: tokenAddress, // The ERC-20 token contract address
+    abi: mock20?.abi,
     functionName: "approve",
-    args: [harvester?.address, BigInt(tokenId)],
+
+    args: [harvester?.address, BigInt(amount)], // Convert amount to BigNumber with 18 decimals
+  };
+
+  const tokenHarvestArgs = {
+    address: harvester?.address, // Your contract that requires token approval
+    abi: harvester?.abi, // ABI of your contract
+    functionName: "harvestERC20",
+    args: [tokenAddress, BigInt(amount)], // Assuming `amount` is a string or number representing the token amount
+    value: BigInt(690000000000000), //ethers.utils.parseEther("0.00069"), // Convert ETH value to BigNumber
   };
 
   // Use `useContractWrite` for token approval
@@ -30,20 +37,41 @@ const HarvestERC721 = () => {
     isError: isApproveError,
   } = useContractWrite(tokenApprovalArgs);
 
-  // Set up your contract write interaction
+  // Use `useContractWrite` for harvesting tokens
   const {
     write: harvestWrite,
     isLoading: isHarvestLoading,
     isSuccess: isHarvestSuccess,
     isError: isHarvestError,
-  } = useContractWrite({
-    address: harvester?.address,
-    abi: harvester?.abi,
-    functionName: "harvestERC721",
-    args: [tokenAddress, BigInt(tokenId)],
-    value: BigInt(690000000000000),
-    // Add overrides if you need to send value or set gas limit
-  });
+  } = useContractWrite(tokenHarvestArgs);
+
+  // old way of doing transactions
+
+  // Set up your contract write interaction
+  // const { writeHarvest, isHarvestLoading, isHarvestSuccess, isHarvestError } = useContractWrite({
+  //   address: deployedContract?.address,
+  //   abi: deployedContract?.abi,
+  //   functionName: "harvestERC20",
+  //   args: [tokenAddress, BigInt(amount)],
+  //   value: BigInt(690000000000000),
+  //   // Add overrides if you need to send value or set gas limit
+  // });
+
+  // //set approvals for tokens
+  // const { write, isLoading, isSuccess, isError } = useContractWrite({
+  //   address: tokenAddress,
+  //   abi: ["approve(address,uint256)"],
+  //   functionName: "approve",
+  //   args: [deployedContract?.address, BigInt(amount)],
+  // });
+
+  // const { data: writeContractResult, writeAsync: approveAsync, error } = useContractWrite(config);
+
+  // // Call the write function when the user submits the form
+  // const harvestToken = async () => {
+  //   await approveWrite();
+  //   harvestWrite();
+  // };
 
   const handleApprove = async () => {
     try {
@@ -66,7 +94,6 @@ const HarvestERC721 = () => {
     }
   };
 
-
   // You can use isLoading, isSuccess, and isError to provide user feedback
   const isLoading = isApproveLoading || isHarvestLoading;
   const isSuccess = isApproveSuccess && isHarvestSuccess;
@@ -74,7 +101,7 @@ const HarvestERC721 = () => {
 
   return (
     <div className="p-4 shadow-lg rounded-lg bg-base-100 max-w-md mx-auto">
-      <h1 className="text-xl font-bold mb-4 text-primary">Harvest ERC-721 Token</h1>
+      <h1 className="text-xl font-bold mb-4 text-primary">Harvest ERC-20 Tokens</h1>
       <div className="mb-4">
         <input
           type="text"
@@ -87,9 +114,9 @@ const HarvestERC721 = () => {
       <div className="mb-4">
         <input
           type="text"
-          value={tokenId}
-          onChange={e => setTokenId(e.target.value)}
-          placeholder="Token ID"
+          value={amount}
+          onChange={e => setAmount(e.target.value)}
+          placeholder="Amount to harvest"
           className="input input-bordered w-full"
         />
       </div>
@@ -107,12 +134,14 @@ const HarvestERC721 = () => {
           disabled={isLoading}
           className={`btn btn-primary w-full ${isLoading ? "loading" : ""}`}
         >
-          Harvest ERC-721 Tokens
+          Harvest Tokens
         </button>
       )}
+
       {isSuccess && <p className="mt-2 text-success">Token harvested successfully!</p>}
       {isError && <p className="mt-2 text-error">There was an error harvesting the token.</p>}
     </div>
   );
 };
-export default HarvestERC721;
+
+export default HarvestERC20;
